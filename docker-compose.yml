@@ -10,3 +10,15 @@ services:
       - redis:/data
     ports:
       - "6379:6379"
+
+  ex:
+    build:
+      context: ex_message_bus/
+      dockerfile: Dockerfile
+    command: "tail -f /bin/sh"
+    links:
+      - redis
+    environment:
+      REDIS_HOST: redis
+    volumes:
+      - ./ex_message_bus:/mnt/code

@@ -22,7 +22,7 @@ use Mix.Config
 #
 #
 config :ex_message_bus, :redis,
-  host: "localhost",
+  host: System.get_env("REDIS_HOST") || "localhost",
   port: System.get_env("REDIS_PORT") || "6379"
 
 # It is also possible to import configuration files, relative to this

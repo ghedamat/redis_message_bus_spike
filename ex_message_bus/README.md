@@ -1,21 +1,48 @@
 # ExMessageBus
 
-**TODO: Add description**
+## TL DR'
 
-## Installation
+```
+# in the parent directory
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `ex_message_bus` to your list of dependencies in `mix.exs`:
+docker-compose up -d
 
-```elixir
-def deps do
-  [
-    {:ex_message_bus, "~> 0.1.0"}
-  ]
-end
+docker-compose exec ex /bin/bash
+
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/ex_message_bus](https://hexdocs.pm/ex_message_bus).
+```
+iex -S mix
 
+# in the console drop a message into the stream
+
+ExMessageBus.MessageBus.Stream.add("MyEvent", %{body: "stream", subject: "ciao"})
+
+# the processing worker will fetch the message and print output to screen
+```
+
+you can also post to the stream from redis-cli
+
+```
+redis-cli
+
+XADD pn_message_bus * name MyEvent payload "{}"
+```
+
+malformed events will cause genserver to crash but should recover properly
+
+in this implementation the consumer ACKs messages instantly after fetching them and BEFORE parsing
+
+you can see any pending messages for the group with
+
+```
+XPENDING pn_message_bus ex_mb
+
+# example
+
+XADD pn_message_bus * name MyEvent payload "asdfdsaf"
+
+XPENDING pn_message_bus ex_mb
+
+# should still return 0 meaning that malformed events will be discarded
+```
